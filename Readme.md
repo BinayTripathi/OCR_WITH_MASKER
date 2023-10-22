@@ -1,0 +1,1 @@
+docker build -f ./Dockerfile -t icheckyfy/ocr_masker:v1 .
