@@ -1,4 +1,5 @@
-from aws_cdk import core
+import aws_cdk as core
+from constructs import Construct
 from aws_cdk import aws_ec2 as _ec2
 from aws_cdk import aws_ecs as _ecs
 from aws_cdk import aws_ecs_patterns as _ecs_patterns
@@ -6,7 +7,7 @@ from aws_cdk import aws_ecs_patterns as _ecs_patterns
 
 class ServerlessContainersArchitectureWithFargateStack(core.Stack):
 
-    def __init__(self, scope: core.Construct, id: str, ** kwargs) -> None:
+    def __init__(self, scope: Construct, id: str, ** kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         # Add your stack resources below):

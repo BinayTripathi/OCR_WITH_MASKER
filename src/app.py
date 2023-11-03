@@ -55,7 +55,7 @@ def getDocTypeAndMaskingCoordinates(responseData):
 
     return documentType, documentId, boundingBox
     
-    
+#Handle the case where its not a PAN    
 def checkPAN(description):
     panLabel = re.search("Permanent Account Number\\n", description)
     panNumber = description[panLabel.regs[0][1] : panLabel.regs[0][1]+10]
