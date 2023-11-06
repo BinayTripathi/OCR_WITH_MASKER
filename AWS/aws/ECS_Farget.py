@@ -34,7 +34,7 @@ class ServerlessContainersArchitectureWithFargateStack(core.Stack):
             memory_limit_mib=1024,
             cpu=512,
             task_image_options={
-                "image": _ecs.ContainerImage.from_registry("icheckify/ocr_masker:v1"),
+                "image": _ecs.ContainerImage.from_registry("icheckify/ocr_masker:v2"),
                 "environment": {
                     "ENVIRONMENT": "PROD"
                 }

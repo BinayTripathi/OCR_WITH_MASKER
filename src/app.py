@@ -1,11 +1,22 @@
 from flask import Flask, request, jsonify, make_response
 import requests
 from masker import maskImage
+from faceMatcher import compare_faces
 import json
 import re
 
 # Init app
 app = Flask(__name__)
+
+@app.route('/faceMatch', methods=['POST'])
+def face_match():
+    content_type = request.headers.get('Content-Type')
+    if (content_type == 'application/json'):
+        json = request.json
+        resp = compare_faces(json["source"], json["dest"])
+        return  jsonify(resp), 200
+    else:
+        return 'Content-Type not supported!'
 
 # Create a Product
 @app.route('/', methods=['POST'])

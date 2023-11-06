@@ -3,14 +3,16 @@ FROM jjanzic/docker-python3-opencv as builder
 
 COPY . /src
 
+WORKDIR /src
+
 RUN pip3 install --upgrade pip
-RUN pip3 install --user -r /src/requirements.txt
+RUN pip3 install --user -r requirements.txt
 
 
 #FROM python:3.8-slim as app
-FROM jjanzic/docker-python3-opencv as app
-COPY --from=builder /root/.local /root/.local
-COPY --from=builder /src .
+#FROM jjanzic/docker-python3-opencv as app
+#COPY --from=builder /root/.local /root/.local
+#COPY --from=builder /src .
 
 ENV PATH=/root/.local:$PATH
 EXPOSE 80
