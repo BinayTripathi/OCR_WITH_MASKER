@@ -10,24 +10,18 @@ app = Flask(__name__)
 
 @app.route('/faceMatch', methods=['POST'])
 def face_match():
-    content_type = request.headers.get('Content-Type')
-    if (content_type == 'application/json'):
-        json = request.json
-        resp = compare_faces(json["source"], json["dest"])
-        return  jsonify(resp), 200
-    else:
-        return 'Content-Type not supported!'
+    json = request.json
+    resp = compare_faces(json["source"], json["dest"])
+    return  jsonify(resp), 200
+
 
 # Create a Product
 @app.route('/', methods=['POST'])
 def get_image():
-    content_type = request.headers.get('Content-Type')
-    if (content_type == 'application/json'):
-        json = request.json
-        resp = get_ocr_data(json["image"])
-        return  jsonify(resp), 200
-    else:
-        return 'Content-Type not supported!'
+    json = request.json
+    resp = get_ocr_data(json["image"])
+    return  jsonify(resp), 200
+
     
 @app.route('/')
 def hello_geek():
