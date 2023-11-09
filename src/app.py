@@ -53,6 +53,7 @@ def get_ocr_data(base64Image):
 
     data = '''{	"requests": [{"image": {"content": "%s" },"features": [{"type": "TEXT_DETECTION","maxResults": 1}]}]}''' % (base64Image)
     response = requests.post(url="https://vision.googleapis.com/v1/images:annotate?key=AIzaSyDXQq3xhrRFxFATfPD4NcWlHLE8NPkzH2s",data=data)
+    response.encoding = "utf-8"
     imageOCRDetails = getDocTypeAndMaskingCoordinates(response.json())
     print(imageOCRDetails)
     masked_image =  maskImage(base64Image, imageOCRDetails[2])
@@ -60,7 +61,8 @@ def get_ocr_data(base64Image):
     return {
         "maskedImage" : masked_image.decode("utf-8"),
         "docType" : imageOCRDetails[0],
-        "documentId" : imageOCRDetails[1]
+        "documentId" : imageOCRDetails[1],
+        "ocrData":  imageOCRDetails[3]
     }
 
 
@@ -78,7 +80,7 @@ def getDocTypeAndMaskingCoordinates(responseData):
             boundingBox = eachWord["boundingPoly"]["vertices"]    #Handle cases where doc id is printed multiple times
             break
 
-    return documentType, documentId, boundingBox
+    return documentType, documentId, boundingBox, description
     
 #Handle the case where its not a PAN    
 def checkPAN(description):
