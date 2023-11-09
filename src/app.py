@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, make_response
 import requests
 from masker import maskImage
 from faceMatcher import compare_faces
+from panVerify import verify
 import json
 import re
 
@@ -27,6 +28,11 @@ def get_image():
 def hello_geek():
     return '<h1>Hello from Flask & Docker</h2>'
     
+@app.route('/verifyPan', methods=['GET'])
+def verifyPan():
+    json = request.json
+    resp = verify(json["pan"])
+    return  jsonify(resp), 200
 
 
 def get_ocr_data(base64Image):
