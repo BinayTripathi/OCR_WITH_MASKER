@@ -31,7 +31,7 @@ def face_match():
 
 
 # Create a Product
-@app.route('/', methods=['POST'])
+@app.route('/ocr', methods=['POST'])
 def get_image():
     json = request.json
     resp = get_ocr_data(json["image"])
