@@ -5,6 +5,9 @@ from faceMatcher import compare_faces
 from panVerify import verify
 import json
 import re
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 # Init app
 app = Flask(__name__)
@@ -33,54 +36,66 @@ def face_match():
 # Create a Product
 @app.route('/ocr', methods=['POST'])
 def get_image():
-    json = request.json
-    resp = get_ocr_data(json["image"])
-    return  jsonify(resp), 200
+    try:
+        json = request.json
+        resp = get_ocr_data(json["image"])
+        return  jsonify(resp), 200
+    except Exception as e: 
+        logging.error(e)
+        return  jsonify({"Error" : "Error in masking"}), 500
 
     
 @app.route('/')
 def hello_geek():
     return '<h1>Hello from Flask & Docker</h2>'
     
-@app.route('/verifyPan', methods=['GET'])
+@app.route('/verifyPan', methods=['POST'])
 def verifyPan():
     json = request.json
     resp = verify(json["pan"])
     return  jsonify(resp), 200
-
+   
 
 def get_ocr_data(base64Image):
 
-    data = '''{	"requests": [{"image": {"content": "%s" },"features": [{"type": "TEXT_DETECTION","maxResults": 1}]}]}''' % (base64Image)
-    response = requests.post(url="https://vision.googleapis.com/v1/images:annotate?key=AIzaSyDXQq3xhrRFxFATfPD4NcWlHLE8NPkzH2s",data=data)
-    response.encoding = "utf-8"
-    imageOCRDetails = getDocTypeAndMaskingCoordinates(response.json())
-    print(imageOCRDetails)
-    masked_image =  maskImage(base64Image, imageOCRDetails[2])
-    #(masked_image)
-    return {
-        "maskedImage" : masked_image.decode("utf-8"),
-        "docType" : imageOCRDetails[0],
-        "documentId" : imageOCRDetails[1],
-        "ocrData":  imageOCRDetails[3]
-    }
-
+    try:
+        data = '''{	"requests": [{"image": {"content": "%s" },"features": [{"type": "TEXT_DETECTION","maxResults": 1}]}]}''' % (base64Image)
+        response = requests.post(url="https://vision.googleapis.com/v1/images:annotate?key=AIzaSyDXQq3xhrRFxFATfPD4NcWlHLE8NPkzH2s",data=data)
+        response.encoding = "utf-8"
+        imageOCRDetails = getDocTypeAndMaskingCoordinates(response.json())
+        masked_image =  maskImage(base64Image, imageOCRDetails[2])
+        #(masked_image)
+        return {
+            "maskedImage" : masked_image.decode("utf-8"),
+            "docType" : imageOCRDetails[0],
+            "documentId" : imageOCRDetails[1],
+            "ocrData":  imageOCRDetails[3]
+        }
+    except Exception as e:
+        logging.error(e)
+        logging.error("Base64 Image : " + base64Image)
+        raise Exception(e)
 
 def getDocTypeAndMaskingCoordinates(responseData):
-    #f = open('sampleResponse.json')
-    #data = json.load(f)
-    allAnnnotation = responseData['responses'][0]
-    textAnnotations = allAnnnotation['textAnnotations']
-    description = textAnnotations[0]["description"]
-    documentType, documentId = checkPAN(description)
-    
-    boundingBox = ''
-    for eachWord in textAnnotations:
-        if eachWord["description"] == documentId:
-            boundingBox = eachWord["boundingPoly"]["vertices"]    #Handle cases where doc id is printed multiple times
-            break
+    try :
+        #f = open('sampleResponse.json')
+        #data = json.load(f)
+        allAnnnotation = responseData['responses'][0]
+        textAnnotations = allAnnnotation['textAnnotations']
+        description = textAnnotations[0]["description"]
+        documentType, documentId = checkPAN(description)
+        
+        boundingBox = ''
+        for eachWord in textAnnotations:
+            if eachWord["description"] == documentId:
+                boundingBox = eachWord["boundingPoly"]["vertices"]    #Handle cases where doc id is printed multiple times
+                break
 
-    return documentType, documentId, boundingBox, description
+        return documentType, documentId, boundingBox, description
+    except Exception as e:
+        logging.error(responseData)
+        raise Exception(e)
+
     
 #Handle the case where its not a PAN    
 def checkPAN(description):
